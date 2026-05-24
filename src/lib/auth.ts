@@ -1,5 +1,5 @@
 // Simple client-side login gate using a secret access code.
-const ACCESS_CODE = "SMARTGADGET2013YTTAGG";
+const ACCESS_CODE = "SMARTGADGETTASZSTOREVINZZ2013KHOLIFSMARTGADGET";
 const AUTH_KEY = "glassdeploy_auth";
 const AUTH_VALUE = "ok_v1";
 
