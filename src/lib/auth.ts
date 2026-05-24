@@ -1,7 +1,4 @@
 // ===== Google Sign-In + Access Control =====
-// Uses Google Identity Services (GIS). Konfigurasi di src/lib/config.ts
-import { GOOGLE_CLIENT_ID, ROOT_ADMIN_EMAIL, isGoogleConfigured } from "./config";
-export { GOOGLE_CLIENT_ID, ROOT_ADMIN_EMAIL, isGoogleConfigured };
 
 export type Role = "admin" | "editor" | "viewer";
 
