@@ -1,0 +1,156 @@
+/*
+ ============================================================
+ Nama File : antirus.abm
+ Tujuan   : Contoh kode anti virus sederhana dalam Java & Python
+ ============================================================
+*/
+
+// ======================= BAGIAN JAVA =======================
+// Simpan kode Java ini sebagai AntivirusScanner.java
+// Compile: javac AntivirusScanner.java
+// Jalankan: java AntivirusScanner <direktori>
+
+import java.io.*;
+import java.nio.file.*;
+import java.util.*;
+
+public class AntivirusScanner {
+    // Daftar signature sederhana (pattern hex atau string)
+    private static final List<String> VIRUS_SIGNATURES = Arrays.asList(
+        "EICAR",                   // Signature file uji EICAR
+        "X5O!P%@AP[4\\PZX54(P^)7CC)7}$", // EICAR string
+        "MZ"                       // Indikasi file executable berbahaya (contoh)
+    );
+    
+    private static int scannedCount = 0;
+    private static int infectedCount = 0;
+    
+    public static void main(String[] args) {
+        String path = (args.length > 0) ? args[0] : ".";
+        File root = new File(path);
+        if (!root.exists()) {
+            System.err.println("Path tidak ditemukan: " + path);
+            System.exit(1);
+        }
+        
+        System.out.println("Memulai scan antivirus di: " + root.getAbsolutePath());
+        scanDirectory(root);
+        System.out.println("\n===== HASIL SCAN =====");
+        System.out.println("Total file discan: " + scannedCount);
+        System.out.println("File terinfeksi : " + infectedCount);
+    }
+    
+    private static void scanDirectory(File dir) {
+        File[] files = dir.listFiles();
+        if (files == null) return;
+        
+        for (File file : files) {
+            if (file.isDirectory()) {
+                scanDirectory(file);
+            } else {
+                scanFile(file);
+            }
+        }
+    }
+    
+    private static void scanFile(File file) {
+        scannedCount++;
+        try {
+            // Baca file sebagai byte array (batasi 1MB untuk performa)
+            byte[] data = Files.readAllBytes(file.toPath());
+            String content = new String(data);
+            
+            for (String signature : VIRUS_SIGNATURES) {
+                if (content.contains(signature)) {
+                    infectedCount++;
+                    System.err.println("[TERINFEKSI] " + file.getPath() + " -> Signature: " + signature);
+                    // Opsi: hapus atau karantina
+                    // Files.move(file.toPath(), Paths.get(file.getParent(), "QUARANTINE_" + file.getName()));
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            // Lewati file yang tidak bisa dibaca
+        }
+    }
+}
+
+// ======================= BAGIAN PYTHON =======================
+# Simpan kode Python ini sebagai antivirus_scanner.py
+# Jalankan: python antivirus_scanner.py [direktori]
+
+import os
+import sys
+import hashlib
+
+# Daftar hash MD5 dari file berbahaya (contoh)
+MALICIOUS_HASHES = {
+    "44d88612fea8a8f36de82e1278abb02f",  # EICAR test file
+    "e3b0c44298fc1c149afbf4c8996fb924",  # empty file (demo)
+}
+
+# Ekstensi yang diperiksa
+TARGET_EXTENSIONS = {'.exe', '.dll', '.scr', '.bat', '.cmd', '.vbs', '.js', '.jar'}
+
+def scan_file(filepath):
+    """Memeriksa file berdasarkan hash dan ekstensi berbahaya"""
+    try:
+        # Baca file dalam mode binary
+        with open(filepath, 'rb') as f:
+            file_data = f.read()
+            file_hash = hashlib.md5(file_data).hexdigest()
+            
+            if file_hash in MALICIOUS_HASHES:
+                print(f"[TERINFEKSI] {filepath} (MD5: {file_hash})")
+                return True
+                
+        # Deteksi sederhana: file executable yang mencurigakan (ukuran 0 atau sangat kecil)
+        if os.path.getsize(filepath) == 0:
+            print(f"[PERINGATAN] File kosong: {filepath}")
+            
+    except (PermissionError, IOError):
+        pass
+    return False
+
+def scan_directory(start_path):
+    """Scan semua file dalam direktori"""
+    infected = 0
+    scanned = 0
+    
+    for root, dirs, files in os.walk(start_path):
+        # Abaikan folder sistem (opsional)
+        dirs[:] = [d for d in dirs if d not in {'.git', '__pycache__', 'System Volume Information'}]
+        
+        for file in files:
+            filepath = os.path.join(root, file)
+            ext = os.path.splitext(file)[1].lower()
+            
+            # Hanya file dengan ekstensi target atau semua jika ekstensi tidak ditentukan
+            if TARGET_EXTENSIONS and ext not in TARGET_EXTENSIONS:
+                continue
+                
+            scanned += 1
+            if scan_file(filepath):
+                infected += 1
+    
+    print(f"\n=== LAPORAN SCAN ===")
+    print(f"File diperiksa: {scanned}")
+    print(f"File terinfeksi: {infected}")
+    
+if __name__ == "__main__":
+    target = sys.argv[1] if len(sys.argv) > 1 else "."
+    if not os.path.exists(target):
+        print(f"Error: {target} tidak ditemukan")
+        sys.exit(1)
+        
+    print(f"Memulai scan antivirus Python di: {os.path.abspath(target)}")
+    scan_directory(target)
+
+/*
+ ============================================================
+ CATATAN:
+ - Kedua kode di atas bersifat edukasi dan perlu dikembangkan lebih lanjut.
+ - Jangan gunakan sebagai antivirus produksi tanpa testing memadai.
+ - Untuk environment nyata, gunakan engine seperti ClamAV atau library yara.
+ ============================================================
+*/
