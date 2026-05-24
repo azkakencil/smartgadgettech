@@ -6,12 +6,6 @@
 // --- Google OAuth Client ID (untuk Sign in with Google) ---
 // Buat di: https://console.cloud.google.com/apis/credentials
 // Pilih "OAuth client ID" → "Web application"
-// Tambahkan domain Anda ke "Authorized JavaScript origins"
-export const GOOGLE_CLIENT_ID =
-  "859282974777-95cv1m130arf0lr8pblo52qobqlfd4m3.apps.googleusercontent.com";
-
-// --- Email admin utama (TIDAK ditampilkan di UI) ---
-export const ROOT_ADMIN_EMAIL = "azkakencil6@gmail.com";
 
 // --- Firebase Web App config ---
 // Dari: Project Settings → General → Your apps → Web app
